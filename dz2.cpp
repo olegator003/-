@@ -5,22 +5,22 @@
 
 std::mutex mtx;
 std::atomic<int> counter_atomic(0);
-std::atomic<int> counter_atomic1(0);
+int counter;
 int counter_no_sync = 0;
 
 
 // выполнил студент 31 группы Челюканов ОС
+
 void incrementCounterWithMutex() {
     for (int i = 0; i < 1000000; ++i) {
-        mtx.lock();
-        counter_atomic++;
-        mtx.unlock();
+        std::lock_guard<std::mutex> lock(mtx);
+        counter++;
     }
 }
 
 void incrementCounterAtomic() {
     for (int i = 0; i < 1000000; ++i) {
-        counter_atomic1++;
+        counter_atomic++;
     }
 }
 
@@ -38,13 +38,13 @@ int main() {
     std::thread t2(incrementCounterWithMutex);
     t1.join();
     t2.join();
-    std::cout << "С Мютексом: " << counter_atomic << std::endl;
+    std::cout << "С Мютексом: " << counter << std::endl;
 
     std::thread t3(incrementCounterAtomic);
     std::thread t4(incrementCounterAtomic);
     t3.join();
     t4.join();
-    std::cout << "С Атомиком: " << counter_atomic1 << std::endl;
+    std::cout << "С Атомиком: " << counter_atomic << std::endl;
 
     std::thread t5(incrementCounterNoSync);
     std::thread t6(incrementCounterNoSync);
